@@ -1,0 +1,83 @@
+parameters:
+  components:
+    api-server:
+      application: api-microservices
+      image: jmalloc/echo-server
+      service:
+        type: LoadBalancer
+      
+      service_account:
+        enabled: true
+        create: true
+        imagePullSecrets:
+          #secret: yyyyyyyy
+          #automountServiceAccountToken: false
+      
+      security_context:
+        runAsNonRoot: true
+        runAsUser: 1001
+        allowPrivilegeEscalation: false
+    
+      volume_mounts:
+          datadir:
+              name: datadog-files
+              mountPath: /opt/application
+      
+      volumes:
+        datadog-files:
+          hostPath:
+            path: /home/anirban/remote_apps/in_containers
+            type: Directory
+        
+          
+      healthcheck:
+        readiness:
+          type: http
+          scheme: HTTP
+          port: 8080
+          path: /_health/readiness
+          timeout_seconds: 3
+        liveness:
+          type: http
+          scheme: HTTP
+          port: 8080
+          path: /_health/liveness
+          timeout_seconds: 3
+        
+      
+      ports:
+        http:
+          service_port: 80
+          container_port: 8080
+        https:
+          service_port: 443 
+          container_port: 8443
+
+      secrets:
+        secret:
+            name: azsecrets
+            labels:
+              special: v12          
+            data:
+              cassandrapassword:
+                value: xxxxxxxxxxxxx
+                b64_encode: true
+              apmoller-registry:
+                value: kjhsdfhjsdkfhsjkfh
+                b64_encode: true
+
+
+
+  ingresses:
+      global:
+          annotations: 
+              host: emea.v1.deadlines.shipment.api-prod.bx.maersk.com.k8s.ao.maersk.com          
+          rules:
+            - host: emea.v1.deadlines.shipment.api-prod.bx.maersk.com.k8s.ao.maersk.com
+              http:
+                paths:
+                - path: "/"
+                  backend:
+                    serviceName: deadlines-v1
+                    servicePort: 80
+               

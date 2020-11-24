@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    host: emea.v1.deadlines.shipment.api-prod.bx.maersk.com.k8s.ao.maersk.com
+  labels:
+    name: global
+  name: global
+  namespace: anirban
+spec:
+  rules:
+    - host: emea.v1.deadlines.shipment.api-prod.bx.maersk.com.k8s.ao.maersk.com
+      http:
+        paths:
+          - backend:
+              serviceName: deadlines-v1
+              servicePort: 80
+            path: /

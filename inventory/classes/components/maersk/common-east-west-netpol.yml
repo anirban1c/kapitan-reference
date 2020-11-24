@@ -1,0 +1,19 @@
+parameters:
+  netpols:
+    global-v1:
+      labels:
+        microservice: deadlines-v1
+        app: deadlines-service
+      podSelector:
+          matchLabels:
+            microservice: deadlines-v1
+            app: deadlines-service
+      policies:
+         egress:
+          - ports:
+            - port: 8081
+              protocol: TCP
+            to:
+            - namespaceSelector:
+                matchLabels:
+                  location: location

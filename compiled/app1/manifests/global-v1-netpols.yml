@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  labels:
+    name: global-v1
+  name: global-v1
+  namespace: anirban
+spec:
+  egress:
+    - ports:
+        - port: 9042
+          protocol: TCP
+      to:
+        - ipBlock:
+            cidr: 10.105.xx.yy/32
+        - ipBlock:
+            cidr: 10.105.xx.yy/32
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              kube-system: kube-system
+        - namespaceSelector:
+            matchLabels:
+              monitoring: monitoring
+      ports:
+        - port: 8080
+          protocol: TCP
+  podSelector:
+    matchLabels:
+      app: deadlines-service
+      microservice: deadlines-v1
+  policyTypes:
+    - Ingress
+    - Egress

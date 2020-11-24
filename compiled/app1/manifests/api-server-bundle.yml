@@ -1,0 +1,103 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    manifests.kapicorp.com/generated: 'true'
+  labels:
+    name: api-server
+  name: api-server
+  namespace: anirban
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      name: api-server
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        name: api-server
+    spec:
+      containers:
+        - image: jmalloc/echo-server
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /_health/liveness
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 3
+          name: api-server
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+            - containerPort: 8443
+              name: https
+              protocol: TCP
+          readinessProbe:
+            failureThreshold: 3
+            httpGet:
+              path: /_health/readiness
+              port: 8080
+              scheme: HTTP
+            initialDelaySeconds: 0
+            periodSeconds: 10
+            successThreshold: 1
+            timeoutSeconds: 3
+          securityContext:
+            allowPrivilegeEscalation: false
+            runAsNonRoot: true
+            runAsUser: 1001
+          volumeMounts:
+            - mountPath: /etc/api-server.conf
+              name: config
+              readOnly: true
+            - mountPath: /opt/application
+              name: datadog-files
+      restartPolicy: Always
+      serviceAccountName: api-server
+      terminationGracePeriodSeconds: 30
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: api-server
+          name: config
+        - hostPath:
+            path: /home/anirban/remote_apps/in_containers
+            type: Directory
+          name: datadog-files
+        - name: secret
+          secret:
+            defaultMode: 420
+            secretName: api-server
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    name: api-server
+  name: api-server
+  namespace: anirban
+spec:
+  ports:
+    - name: http
+      port: 80
+      protocol: TCP
+      targetPort: http
+    - name: https
+      port: 443
+      protocol: TCP
+      targetPort: https
+  selector:
+    name: api-server
+  sessionAffinity: None
+  type: LoadBalancer

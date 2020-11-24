@@ -1,0 +1,30 @@
+classes:
+  - common
+  - components.maersk.app
+  - applications.maersk.api-microservices
+  - components.maersk.common-netpols
+
+
+parameters:
+  target_name: app1
+  name: app1-v1
+  namespace: anirban
+  
+  components:
+    api-server:
+        config_maps:            
+            config:
+              mount: /etc/api-server.conf      
+              data:
+                api-server-cassandra.conf:
+                  value: |- 
+                      cassandrausername: "ao_deadlines_v1_read"
+                      cassandracontactpoints: 10.115.66.69,10.115.66.73,10.115.66.74,10.115.66.76,10.115.66.77,10.115.66.111
+                      cassandraport:  "9042"
+                      cassandradcname: emea_dc
+                      cassandrahosts: "6"
+                      spring.data.cassandra.keyspace-name: ao_deadlines_service_green
+                api-server-kafka.conf:
+                  value: |-
+                      kafka.hostname: xccc
+                      kafka.port: 898

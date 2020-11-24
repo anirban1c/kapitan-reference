@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    name: api-server
+  name: api-server
+  namespace: anirban

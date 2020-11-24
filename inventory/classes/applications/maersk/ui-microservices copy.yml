@@ -1,0 +1,7 @@
+parameters:
+  applications:
+      api-microservices:
+          component_defaults:
+            replicas: 4
+          env:
+            KAPITAN_APPLICATION: ui-microservices

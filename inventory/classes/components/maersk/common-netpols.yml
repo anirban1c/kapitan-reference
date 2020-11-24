@@ -1,0 +1,30 @@
+parameters:
+  netpols:
+    global-v1:
+      podSelector:
+          matchLabels:
+            microservice: deadlines-v1
+            app: deadlines-service
+      policies:
+        ingress:
+            - from:
+              - namespaceSelector:
+                  matchLabels:
+                    kube-system: kube-system
+              - namespaceSelector:
+                  matchLabels:
+                    monitoring: monitoring
+              ports:
+              - protocol: TCP
+                port: 8080
+        
+        egress:
+            - to:
+              - ipBlock:
+                  cidr: 10.105.xx.yy/32
+              - ipBlock:
+                  cidr: 10.105.xx.yy/32
+              
+              ports:
+              - protocol: TCP
+                port: 9042
