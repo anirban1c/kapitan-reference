@@ -10,8 +10,8 @@ parameters:
         enabled: true
         create: true
         imagePullSecrets:
-          #secret: yyyyyyyy
-          #automountServiceAccountToken: false
+          #secret: acr-creds
+        #automountServiceAccountToken: false
       
       security_context:
         runAsNonRoot: true
@@ -59,6 +59,9 @@ parameters:
             labels:
               special: v12          
             data:
+              acr-creds:
+                value: kjjlkjlljl
+                b64_encode: true
               cassandrapassword:
                 value: xxxxxxxxxxxxx
                 b64_encode: true
