@@ -3,6 +3,7 @@ classes:
   - kapitan.spinnaker
   - kapitan.generators.manifests
   - kapitan.generators.ingresses
+  - kapitan.generators.netpols
 
 parameters:
   scripts: []

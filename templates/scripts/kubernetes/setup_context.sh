@@ -9,4 +9,12 @@ KUBECTL="kubectl"
 ${KUBECTL} config set-context {{p.target_name}} --cluster {{cluster.id}} --user {{cluster.user}} --namespace {{p.namespace}}
 {% elif cluster.type == "kind" %}
 ${KUBECTL} config set-context {{p.target_name}} --cluster {{cluster.id}} --user {{cluster.user}} --namespace {{p.namespace}}
+{% elif cluster.type == "microk8s" %}
+${KUBECTL} config set-context {{p.target_name}} --cluster {{cluster.id}} --user {{cluster.user}} --namespace {{p.namespace}}
+{% elif cluster.type == "aks" %}
+${KUBECTL} config set-context {{p.target_name}} --cluster {{cluster.id}} --user {{cluster.user}} --namespace {{p.namespace}}
+{% elif cluster.type == "iks" %}
+${KUBECTL} config set-context {{p.target_name}} --cluster {{cluster.id}} --user {{cluster.user}} --namespace {{p.namespace}}
 {% endif %}
+
+

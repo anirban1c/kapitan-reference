@@ -304,4 +304,9 @@ kapitan + kube + {
     spec+: { rules+: [] },
     WithDomains(domains):: self + { spec+: { domains+: domains } },
   },
+
+  K8sNetpols(name): $.K8sCommon(name) + kube.NetworkPolicy(name) {
+    WithPolicytypes(policies)::  self + { spec+: policies },
+    WithPodSelector(podSelector):: self + if std.length(podSelector) > 0 then { spec+: { podSelector : podSelector } } else {},
+  },
 }
