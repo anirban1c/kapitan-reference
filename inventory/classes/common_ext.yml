@@ -1,0 +1,18 @@
+parameters:
+  kapitan:
+    dependencies:
+    - type: https
+      source: https://github.com/DataDog/helm-charts/releases/download/datadog-2.6.0/datadog-2.6.0.tgz
+      unpack: true
+      output_path: vendor/charts
+    - type: https
+      source: https://github.com/DataDog/helm-charts/releases/download/datadog-crds-0.1.1/datadog-crds-0.1.1.tgz
+      unpack: true
+      output_path: vendor/charts
+    
+    compile:
+      - output_path: manifests
+        input_type: helm
+        input_paths:
+          - vendor/charts/datadog
+        

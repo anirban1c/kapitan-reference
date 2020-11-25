@@ -39,6 +39,7 @@ local p = kap.parameters;
     .WithRunAsUser(utils.objectGet(service_component.security, 'user_id'), 'security' in service_component)
     .WithSecurityContext(utils.objectGet(service_component, 'security_context', {}))
     .WithAllowPrivilegeEscalation(utils.objectGet(service_component.security, 'allow_privilege_escalation'), 'security' in service_component)
+    .WithImagePullSecrets(utils.objectGet(service_component, 'imagePullSecrets', {}))
     .WithMount({ [secret_name]: {
       [if 'subPath' in secrets_configs[secret_name].config then 'subPath']: secrets_configs[secret_name].config.subPath,
       mountPath: secrets_configs[secret_name].config.mount,

@@ -25,6 +25,8 @@ spec:
       containers:
         - image: jmalloc/echo-server
           imagePullPolicy: IfNotPresent
+          imagePullSecrets:
+            - apmoller-registry
           livenessProbe:
             failureThreshold: 3
             httpGet:
@@ -75,10 +77,14 @@ spec:
             path: /home/anirban/remote_apps/in_containers
             type: Directory
           name: datadog-files
+        - name: img-pull-secret
+          secret:
+            defaultMode: 420
+            secretName: api-server-img-pull-secret
         - name: secret
           secret:
             defaultMode: 420
-            secretName: api-server
+            secretName: api-server-secret
 ---
 apiVersion: v1
 kind: Service
@@ -100,4 +106,4 @@ spec:
   selector:
     name: api-server
   sessionAffinity: None
-  type: LoadBalancer
+  type: ClusterIP

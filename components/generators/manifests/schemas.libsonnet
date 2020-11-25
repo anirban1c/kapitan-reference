@@ -98,12 +98,13 @@
       labels: { type: 'object', additionalProperties: { type: 'string' } },
       name: { type: 'string' },
       node_selector_labels: { type: 'object' },
+      imagePullSecrets: { type: 'string' },
       service_account: { anyOf: [{ type: 'null' }, { 
         type: 'object', 
         properties: {
           name: {type: 'string'},
           create: {type: 'boolean'},
-          enabled: {type: 'boolean'},
+          enabled: {type: 'boolean'},          
           annotations: { anyOf: [{ type: 'null' }, { type: 'object', additionalValues: { type: 'string' } }]},
         },
         additionalProperties: false,

@@ -1,0 +1,226 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    app.kubernetes.io/instance: ''
+    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/name: -datadog
+    app.kubernetes.io/version: '7'
+    helm.sh/chart: datadog-2.6.0
+  name: -datadog
+spec:
+  selector:
+    matchLabels:
+      app: -datadog
+  template:
+    metadata:
+      annotations:
+        checksum/autoconf-config: 38e0b9de817f645c4bec37c0d4a3e58baecccb040f5718dc069a72c7385a0bed
+        checksum/checksd-config: ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356
+        checksum/clusteragent_token: 01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b
+        checksum/confd-config: ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356
+        checksum/install_info: 1c902d42e2c0dbed8fb00834600093f997e8bb8e993d0faee2fe139802122dba
+      labels:
+        app: -datadog
+      name: -datadog
+    spec:
+      affinity: {}
+      containers:
+        - command:
+            - agent
+            - run
+          env:
+            - name: DD_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: api-key
+                  name: -datadog
+            - name: DD_KUBERNETES_KUBELET_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: KUBERNETES
+              value: 'yes'
+            - name: DOCKER_HOST
+              value: unix:///host/var/run/docker.sock
+            - name: DD_LOG_LEVEL
+              value: INFO
+            - name: DD_DOGSTATSD_PORT
+              value: '8125'
+            - name: DD_APM_ENABLED
+              value: 'false'
+            - name: DD_LOGS_ENABLED
+              value: 'false'
+            - name: DD_LOGS_CONFIG_CONTAINER_COLLECT_ALL
+              value: 'false'
+            - name: DD_LOGS_CONFIG_K8S_CONTAINER_USE_FILE
+              value: 'true'
+            - name: DD_HEALTH_PORT
+              value: '5555'
+          image: gcr.io/datadoghq/agent:7.23.1
+          imagePullPolicy: IfNotPresent
+          livenessProbe:
+            failureThreshold: 6
+            httpGet:
+              path: /live
+              port: 5555
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            successThreshold: 1
+            timeoutSeconds: 5
+          name: agent
+          ports:
+            - containerPort: 8125
+              name: dogstatsdport
+              protocol: UDP
+          readinessProbe:
+            failureThreshold: 6
+            httpGet:
+              path: /ready
+              port: 5555
+              scheme: HTTP
+            initialDelaySeconds: 15
+            periodSeconds: 15
+            successThreshold: 1
+            timeoutSeconds: 5
+          resources: {}
+          volumeMounts:
+            - mountPath: /etc/datadog-agent/install_info
+              name: installinfo
+              readOnly: true
+              subPath: install_info
+            - mountPath: /etc/datadog-agent
+              name: config
+            - mountPath: /host/var/run
+              mountPropagation: None
+              name: runtimesocketdir
+              readOnly: true
+            - mountPath: /host/proc
+              mountPropagation: None
+              name: procdir
+              readOnly: true
+            - mountPath: /host/sys/fs/cgroup
+              mountPropagation: None
+              name: cgroups
+              readOnly: true
+        - command:
+            - process-agent
+            - -config=/etc/datadog-agent/datadog.yaml
+          env:
+            - name: DD_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: api-key
+                  name: -datadog
+            - name: DD_KUBERNETES_KUBELET_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: KUBERNETES
+              value: 'yes'
+            - name: DOCKER_HOST
+              value: unix:///host/var/run/docker.sock
+            - name: DD_LOG_LEVEL
+              value: INFO
+            - name: DD_SYSTEM_PROBE_ENABLED
+              value: 'false'
+            - name: DD_ORCHESTRATOR_EXPLORER_ENABLED
+              value: 'false'
+          image: gcr.io/datadoghq/agent:7.23.1
+          imagePullPolicy: IfNotPresent
+          name: process-agent
+          resources: {}
+          volumeMounts:
+            - mountPath: /etc/datadog-agent
+              name: config
+            - mountPath: /host/var/run
+              mountPropagation: None
+              name: runtimesocketdir
+              readOnly: true
+            - mountPath: /host/sys/fs/cgroup
+              mountPropagation: None
+              name: cgroups
+              readOnly: true
+            - mountPath: /etc/passwd
+              name: passwd
+            - mountPath: /host/proc
+              mountPropagation: None
+              name: procdir
+              readOnly: true
+      initContainers:
+        - args:
+            - cp -r /etc/datadog-agent /opt
+          command:
+            - bash
+            - -c
+          image: gcr.io/datadoghq/agent:7.23.1
+          imagePullPolicy: IfNotPresent
+          name: init-volume
+          resources: {}
+          volumeMounts:
+            - mountPath: /opt/datadog-agent
+              name: config
+        - args:
+            - for script in $(find /etc/cont-init.d/ -type f -name '*.sh' | sort)
+              ; do bash $script ; done
+          command:
+            - bash
+            - -c
+          env:
+            - name: DD_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  key: api-key
+                  name: -datadog
+            - name: DD_KUBERNETES_KUBELET_HOST
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: KUBERNETES
+              value: 'yes'
+            - name: DOCKER_HOST
+              value: unix:///host/var/run/docker.sock
+          image: gcr.io/datadoghq/agent:7.23.1
+          imagePullPolicy: IfNotPresent
+          name: init-config
+          resources: {}
+          volumeMounts:
+            - mountPath: /etc/datadog-agent
+              name: config
+            - mountPath: /host/proc
+              mountPropagation: None
+              name: procdir
+              readOnly: true
+            - mountPath: /host/var/run
+              mountPropagation: None
+              name: runtimesocketdir
+              readOnly: true
+      nodeSelector:
+        beta.kubernetes.io/os: linux
+      serviceAccountName: -datadog
+      tolerations: null
+      volumes:
+        - configMap:
+            name: -datadog-installinfo
+          name: installinfo
+        - emptyDir: {}
+          name: config
+        - hostPath:
+            path: /var/run
+          name: runtimesocketdir
+        - hostPath:
+            path: /proc
+          name: procdir
+        - hostPath:
+            path: /sys/fs/cgroup
+          name: cgroups
+        - emptyDir: {}
+          name: s6-run
+        - hostPath:
+            path: /etc/passwd
+          name: passwd
+  updateStrategy:
+    rollingUpdate:
+      maxUnavailable: 10%
+    type: RollingUpdate

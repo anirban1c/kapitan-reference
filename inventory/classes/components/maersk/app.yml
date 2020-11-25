@@ -4,13 +4,12 @@ parameters:
       application: api-microservices
       image: jmalloc/echo-server
       service:
-        type: LoadBalancer
+        type: ClusterIP
       
       service_account:
         enabled: true
         create: true
-        imagePullSecrets:
-          #secret: acr-creds
+      imagePullSecrets: apmoller-registry
         #automountServiceAccountToken: false
       
       security_context:
@@ -54,6 +53,12 @@ parameters:
           container_port: 8443
 
       secrets:
+        img-pull-secret:
+          name: apmoller-registry
+          data:
+            username:
+              value: xtttttt
+              b64_encode: true
         secret:
             name: azsecrets
             labels:

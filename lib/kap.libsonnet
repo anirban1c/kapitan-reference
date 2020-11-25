@@ -154,6 +154,7 @@ kapitan + kube + {
     WithRestartPolicy(policy):: self + { spec+: { template+: { spec+: { restartPolicy: policy } } } },
     WithServiceAccountName(sa):: self + if utils.objectGet(sa, 'enabled', false) then { spec+: { template+: { spec+: { serviceAccountName: utils.objectGet(sa, 'name', name) } } } } else {},
     WithVolume(volume, enabled=true):: self + if enabled then { spec+: { template+: { spec+: { volumes_+: volume } } } } else {},
+    WithImagePullSecrets(secret):: self + { spec+: { template+: { spec+: { imagePullSecrets+: [{ name: secret }] } } } },
   },
 
   K8sStatefulSet(name): $.K8sCommon(name) + kube.StatefulSet(name) {
@@ -209,6 +210,7 @@ kapitan + kube + {
     WithCommand(command):: self + { command: command },
     WithArgs(args):: self + { args: args },
     WithImage(image):: self + { image_:: image },
+    WithImagePullSecrets(secrets, enabled=true):: self + if enabled then { imagePullSecrets+: [secrets] } else {},
     WithEnvs(envs):: self + { env_: std.prune(envs) },
     WithSecurityContext(security_context):: self + { securityContext +: security_context },
     WithMount(mount, enabled=true):: self + if enabled then { volumeMounts_+: mount } else {},

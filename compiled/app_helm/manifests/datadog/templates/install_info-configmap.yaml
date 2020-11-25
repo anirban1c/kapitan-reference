@@ -1,0 +1,15 @@
+apiVersion: v1
+data:
+  install_info: "---\ninstall_method:\n  tool: helm\n  tool_version: Tiller\n  installer_version:\
+    \ datadog-2.6.0\n"
+kind: ConfigMap
+metadata:
+  annotations:
+    checksum/install_info: 1c902d42e2c0dbed8fb00834600093f997e8bb8e993d0faee2fe139802122dba
+  labels:
+    app.kubernetes.io/instance: ''
+    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/name: -datadog
+    app.kubernetes.io/version: '7'
+    helm.sh/chart: datadog-2.6.0
+  name: -datadog-installinfo

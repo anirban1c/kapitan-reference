@@ -1,0 +1,17 @@
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/instance: null
+    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/name: kube-state-metrics
+    helm.sh/chart: kube-state-metrics-2.8.11
+  name: -kube-state-metrics
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: -kube-state-metrics
+subjects:
+  - kind: ServiceAccount
+    name: -kube-state-metrics
+    namespace: default

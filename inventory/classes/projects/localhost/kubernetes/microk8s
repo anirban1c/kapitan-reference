@@ -1,0 +1,10 @@
+classes:
+- kapitan.templates.kubernetes
+- kapitan.templates.microk8s
+parameters:
+  cluster: ${microk8s}
+  kind:
+    name: microk8s
+    type: microk8s
+    id: microk8s-local
+    user: microk8s-user

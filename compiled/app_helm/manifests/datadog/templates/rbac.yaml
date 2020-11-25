@@ -1,0 +1,101 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    app.kubernetes.io/instance: ''
+    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/name: -datadog
+    app.kubernetes.io/version: '7'
+    helm.sh/chart: datadog-2.6.0
+  name: -datadog
+rules:
+  - apiGroups:
+      - ''
+    resources:
+      - services
+      - events
+      - endpoints
+      - pods
+      - nodes
+      - componentstatuses
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - quota.openshift.io
+    resources:
+      - clusterresourcequotas
+    verbs:
+      - get
+      - list
+  - nonResourceURLs:
+      - /version
+      - /healthz
+    verbs:
+      - get
+  - nonResourceURLs:
+      - /metrics
+    verbs:
+      - get
+  - apiGroups:
+      - ''
+    resources:
+      - nodes/metrics
+      - nodes/spec
+      - nodes/proxy
+      - nodes/stats
+    verbs:
+      - get
+  - apiGroups:
+      - ''
+    resources:
+      - endpoints
+    verbs:
+      - get
+  - apiGroups:
+      - policy
+    resourceNames:
+      - -datadog
+    resources:
+      - podsecuritypolicies
+    verbs:
+      - use
+  - apiGroups:
+      - security.openshift.io
+    resourceNames:
+      - -datadog
+    resources:
+      - securitycontextconstraints
+    verbs:
+      - use
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    app.kubernetes.io/instance: ''
+    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/name: -datadog
+    app.kubernetes.io/version: '7'
+    helm.sh/chart: datadog-2.6.0
+  name: -datadog
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: -datadog
+subjects:
+  - kind: ServiceAccount
+    name: -datadog
+    namespace: default
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    app.kubernetes.io/instance: ''
+    app.kubernetes.io/managed-by: Tiller
+    app.kubernetes.io/name: -datadog
+    app.kubernetes.io/version: '7'
+    helm.sh/chart: datadog-2.6.0
+  name: -datadog
